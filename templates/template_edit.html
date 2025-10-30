@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{% if tpl %}Редактировать шаблон{% else %}Создать шаблон{% endif %}{% endblock %}
+{% block content %}
+<h3>{% if tpl %}Редактировать шаблон{% else %}Создать шаблон{% endif %}</h3>
+
+<form method="post" id="templateForm">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control", placeholder="Например: Справка об обучении") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control", rows="2", placeholder="Краткое описание назначения шаблона") }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Текст шаблона</label>
+        <div class="small text-muted mb-2">
+            Пишите обычный текст. Используйте кнопки для вставки переменных и готовых блоков.
+        </div>
+
+        <div class="mb-2">
+            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="insertVariable('ФИО')">ФИО</button>
+            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="insertVariable('дата')">Дата</button>
+            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="insertVariable('должность')">Должность</button>
+            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="insertVariable('подпись')">Подпись</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm me-1" onclick="insertCustomVariable()">+ Своя переменная</button>
+            <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#blocksModal">
+                🧩 Вставить блок
+            </button>
+        </div>
+
+        {{ form.template_text(class="form-control", rows="15", id="templateText") }}
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Сохранить шаблон</button>
+        <a href="{{ url_for('templates_list') }}" class="btn btn-outline-secondary">Отмена</a>
+    </div>
+</form>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="blocksModal" tabindex="-1" aria-labelledby="blocksModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="blocksModalLabel">Библиотека готовых блоков</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6>Учебные заведения</h6>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('Федеральное государственное бюджетное образовательное учреждение высшего образования «{{ университет }}»')">Федеральное государственное бюджетное образовательное учреждение высшего образования «{{ университет }}»</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('Государственное бюджетное профессиональное образовательное учреждение «{{ колледж }}»')">Государственное бюджетное профессиональное образовательное учреждение «{{ колледж }}»</button>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <h6>Должности</h6>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('Ректор {{ ректор }}')">Ректор {{ ректор }}</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('Декан факультета {{ декан }}')">Декан факультета {{ декан }}</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('Заведующий кафедрой {{ зав_кафедрой }}')">Заведующий кафедрой {{ зав_кафедрой }}</button>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <h6>Стандартные фразы</h6>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('в соответствии с')">в соответствии с</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('на основании')">на основании</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('считаю нужным отметить')">считаю нужным отметить</button>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <h6>Подписи</h6>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('М.П.')">М.П.</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('__________________')">__________________</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm d-block mb-1" onclick="insertBlock('г. {{ город }}, {{ дата }}')">г. {{ город }}, {{ дата }}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% raw %}
+<script>
+    function insertAtCursor(textarea, text) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const value = textarea.value;
+        textarea.value = value.substring(0, start) + text + value.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + text.length;
+        textarea.focus();
+    }
+
+    function insertVariable(name) {
+        const textarea = document.getElementById('templateText');
+        insertAtCursor(textarea, '{{ ' + name + ' }}');
+    }
+
+    function insertCustomVariable() {
+        const name = prompt("Введите название переменной (латиницей или кириллицей, без пробелов):\nПример: номер_приказа, ФИО_студента");
+        if (name && name.trim()) {
+            const cleanName = name.trim().replace(/[^\wа-яА-ЯёЁ]/g, '_');
+            insertVariable(cleanName);
+        }
+    }
+
+    function insertBlock(text) {
+        const textarea = document.getElementById('templateText');
+        insertAtCursor(textarea, text);
+        const modal = bootstrap.Modal.getInstance(document.getElementById('blocksModal'));
+        modal.hide();
+    }
+</script>
+{% endraw %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Главная — EduDocHelper{% endblock %}
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Шаблоны</h5>
+                <p class="card-text display-4">{{ templates|length }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Документы</h5>
+                <p class="card-text display-4">{{ generated_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Сегодня</h5>
+                <p class="card-text display-4">{{ today_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <h2>Добро пожаловать в EduDocHelper</h2>
+    <p class="text-muted">Платформа для автоматизации внутренней документации в учебных заведениях</p>
+    <a href="{{ url_for('templates_list') }}" class="btn btn-primary btn-lg me-2">Перейти к шаблонам</a>
+    <a href="{{ url_for('generated_list') }}" class="btn btn-outline-secondary btn-lg">Посмотреть документы</a>
+</div>
+{% endblock %}

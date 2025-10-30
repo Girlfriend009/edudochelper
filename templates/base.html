@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}EduDocHelper{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">EduDocHelper</a>
+        <div class="d-flex">
+            {% if session.user_id %}
+            <a href="{{ url_for('templates_list') }}" class="btn btn-outline-light btn-sm me-2">Шаблоны</a>
+            <a href="{{ url_for('generated_list') }}" class="btn btn-outline-light btn-sm me-2">Документы</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Выйти</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm">Вход</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Сгенерированные документы{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Сгенерированные документы</h3>
+</div>
+
+<form method="GET" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Поиск по названию шаблона..." value="{{ search_query }}">
+        <button class="btn btn-outline-secondary" type="submit">🔍</button>
+    </div>
+</form>
+
+{% if items %}
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Шаблон</th>
+        <th>Файл</th>
+        <th>Дата</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for doc in items %}
+    <tr>
+        <td>{{ doc.id }}</td>
+        <td>
+            {% set tpl = doc.template_id | get_template %}
+            {{ tpl.name if tpl else '—' }}
+        </td>
+        <td>{{ doc.filename }}</td>
+        <td>{{ doc.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        <td>
+            <a href="{{ url_for('generated_download', doc_id=doc.id) }}" class="btn btn-sm btn-outline-primary">Скачать</a>
+            <form method="POST" action="{{ url_for('generated_delete', doc_id=doc.id) }}" style="display:inline;" onsubmit="return confirm('Удалить документ?')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">Нет сгенерированных документов.</div>
+{% endif %}
+{% endblock %}
