@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - ADMIN_PASSWORD=admin123  # или свой пароль
+      - FLASK_ENV=production
+    volumes:
+      # Для сохранения данных между перезапусками
+      - uploads:/app/uploads
+      - instance:/app/instance
+    command: gunicorn --bind 0.0.0.0:5000 app:create_app()
+
+volumes:
+  uploads:
+  instance:
